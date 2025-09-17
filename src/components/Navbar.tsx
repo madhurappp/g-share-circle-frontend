@@ -1,32 +1,36 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [userName, setUserName] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const session = supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) {
-        const name = data.session.user.user_metadata?.name || null;
-        setUserName(name);
-      }
-    });
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        const name = session.user.user_metadata?.name || null;
+      if (user) {
+        const name =
+          (user.user_metadata && user.user_metadata.name) ||
+          user.email?.split("@")[0] ||
+          "User";
         setUserName(name);
       } else {
         setUserName(null);
       }
+    };
+
+    getUser();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      getUser();
     });
 
     return () => {
-      subscription.unsubscribe();
+      listener.subscription.unsubscribe();
     };
   }, []);
 
@@ -37,39 +41,36 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between items-center p-4 shadow-md bg-white">
-      <div
-        className="text-xl font-bold cursor-pointer text-blue-600"
-        onClick={() => navigate("/")}
-      >
+    <nav className="bg-gray-100 p-4 flex justify-between items-center shadow">
+      <Link to="/" className="text-xl font-bold text-blue-600">
         ShareCircle
-      </div>
-      <div className="space-x-4">
+      </Link>
+      <div>
         {userName ? (
-          <>
-            <span className="font-medium">Hello, {userName}</span>
+          <div className="flex items-center space-x-4">
+            <span className="text-gray-700">Hi, {userName}</span>
             <button
               onClick={handleLogout}
-              className="bg-red-500 text-white px-3 py-1 rounded"
+              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
             >
               Logout
             </button>
-          </>
+          </div>
         ) : (
-          <>
-            <button
-              onClick={() => navigate("/auth?mode=login")}
-              className="bg-blue-500 text-white px-3 py-1 rounded"
+          <div className="space-x-4">
+            <Link
+              to="/auth?mode=login"
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
             >
               Login
-            </button>
-            <button
-              onClick={() => navigate("/auth?mode=signup")}
-              className="bg-green-500 text-white px-3 py-1 rounded"
+            </Link>
+            <Link
+              to="/auth?mode=signup"
+              className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
             >
               Signup
-            </button>
-          </>
+            </Link>
+          </div>
         )}
       </div>
     </nav>

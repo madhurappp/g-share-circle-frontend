@@ -1,112 +1,130 @@
 import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode") || "login";
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
 
-    if (isLogin) {
-      // Login
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    try {
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { name },
+            emailRedirectTo: "http://localhost:5173/confirm",
+          },
+        });
 
-      if (error) {
-        setMessage(error.message);
+        if (error) throw error;
+
+        navigate("/", {
+          state: {
+            message:
+              "Signup successful! Please check your email to confirm your account.",
+          },
+        });
       } else {
-        setMessage("Login successful!");
-        navigate("/"); // ✅ Redirect to home
-      }
-    } else {
-      // Signup
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { name }, // Save name in metadata
-          emailRedirectTo: `${window.location.origin}/email-confirmed`,
-        },
-      });
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      if (error) {
-        setMessage(error.message);
-      } else {
-        navigate("/confirmation"); // ✅ Redirect to confirmation page
+        if (error) throw error;
+
+        navigate("/dashboard");
       }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {isLogin ? "Login to ShareCircle" : "Sign Up for ShareCircle"}
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded shadow-md w-full max-w-md space-y-4"
+      >
+        <h2 className="text-2xl font-bold text-center text-blue-600">
+          {mode === "signup" ? "Sign Up" : "Login"}
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-          )}
+
+        {mode === "signup" && (
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border p-2 rounded"
             required
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
-          >
-            {isLogin ? "Login" : "Sign Up"}
-          </button>
-        </form>
+        )}
 
-        {message && <p className="mt-4 text-center text-red-500">{message}</p>}
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border p-2 rounded"
+          required
+        />
 
-        <p className="mt-4 text-center">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-          <button
-            className="text-indigo-600 hover:underline"
-            onClick={() => setIsLogin(!isLogin)}
-          >
-            {isLogin ? "Sign Up" : "Login"}
-          </button>
-        </p>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border p-2 rounded"
+          required
+        />
 
-        <p className="mt-2 text-center">
-          <button
-            className="text-gray-500 hover:underline"
-            onClick={() => navigate("/")}
-          >
-            Cancel
-          </button>
-        </p>
-      </div>
+        {error && (
+          <div className="text-red-600 bg-red-100 p-2 rounded">{error}</div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full text-white py-2 rounded transition ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : mode === "signup"
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {loading
+            ? mode === "signup"
+              ? "Signing up..."
+              : "Logging in..."
+            : mode === "signup"
+            ? "Signup"
+            : "Login"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="w-full bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400"
+        >
+          Cancel
+        </button>
+      </form>
     </div>
   );
 }
