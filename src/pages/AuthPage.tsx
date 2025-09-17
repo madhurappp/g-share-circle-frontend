@@ -25,7 +25,7 @@ export default function AuthPage() {
           password,
           options: {
             data: { name },
-            emailRedirectTo: "http://localhost:5173/confirm",
+            emailRedirectTo: `${import.meta.env.VITE_SITE_URL}/confirm`,
           },
         });
 
