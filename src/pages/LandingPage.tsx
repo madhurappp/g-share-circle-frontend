@@ -6,7 +6,7 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
-      <h1 className="text-4xl font-bold text-blue-600 mb-4">Welcome to ShareCircle</h1>
+      <img src="/logo.png" alt="ShareCircle Logo" className="h-32 mb-6" />
       <p className="text-lg text-gray-700 mb-6">
         Share what you don’t need, find what you do. Build community through sharing.
       </p>

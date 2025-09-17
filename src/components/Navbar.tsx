@@ -42,8 +42,8 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gray-100 p-4 flex justify-between items-center shadow">
-      <Link to="/" className="text-xl font-bold text-blue-600">
-        ShareCircle
+      <Link to="/" className="flex items-center">
+        <img src="/logo.png" alt="ShareCircle Logo" className="h-10" />
       </Link>
       <div>
         {userName ? (
@@ -59,13 +59,13 @@ export default function Navbar() {
         ) : (
           <div className="space-x-4">
             <Link
-              to="/auth?mode=login"
+              to="auth?mode=login"
               className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
             >
               Login
             </Link>
             <Link
-              to="/auth?mode=signup"
+              to="auth?mode=signup"
               className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
             >
               Signup
