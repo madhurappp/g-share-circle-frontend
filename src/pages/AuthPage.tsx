@@ -99,7 +99,7 @@ export default function AuthPage() {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
           >
-            {loading ? "Processing..." : mode === "login" ? "Login" : "Sign Up"}
+            {loading ? "Logging In..." : mode === "login" ? "Login" : "Sign Up"}
           </button>
         </form>
       </div>
