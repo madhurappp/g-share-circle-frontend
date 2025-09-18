@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import AuthPage from "./pages/AuthPage";
 import ConfirmPage from "./pages/ConfirmPage";
 import EmailConfirmed from "./pages/EmailConfirmed";
+import LoggedOut from "./pages/LoggedOut";
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
 
         {/* Optional "Email confirmed" success page */}
         <Route path="email-confirmed" element={<EmailConfirmed />} />
+
+        <Route path="/logged-out" element={<LoggedOut />} />
       </Route>
     </Routes>
   );

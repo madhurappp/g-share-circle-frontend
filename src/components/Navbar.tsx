@@ -1,33 +1,23 @@
-import { useEffect, useState } from "react";
+// src/components/Navbar.tsx
+
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Navbar() {
-  const [userName, setUserName] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    // Get current user
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
 
-      if (user) {
-        const name =
-          (user.user_metadata && user.user_metadata.name) ||
-          user.email?.split("@")[0] ||
-          "User";
-        setUserName(name);
-      } else {
-        setUserName(null);
+    // Listen for auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
       }
-    };
-
-    getUser();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(() => {
-      getUser();
-    });
+    );
 
     return () => {
       listener.subscription.unsubscribe();
@@ -36,41 +26,41 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    setUserName(null);
-    navigate("/");
+    navigate("/logged-out"); // redirect to logged-out page
   };
 
   return (
-    <nav className="bg-gray-100 p-4 flex justify-between items-center shadow">
-      <Link to="/" className="flex items-center">
-        <img src="/logo.png" alt="ShareCircle Logo" className="h-10" />
+    <nav className="flex items-center justify-between p-4 shadow">
+      {/* Logo: Goes to Dashboard if logged in, LandingPage otherwise */}
+      <Link
+        to="/"
+        className="text-xl font-bold text-blue-600"
+      >
+        ShareCircle
       </Link>
-      <div>
-        {userName ? (
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-700">Hi, {userName}</span>
+
+      <div className="flex gap-4 items-center">
+        {!user ? (
+          <>
+            <Link to="/auth?mode=login" className="hover:underline">
+              Login
+            </Link>
+            <Link to="/auth?mode=signup" className="hover:underline">
+              Signup
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to="/dashboard" className="hover:underline">
+              Dashboard
+            </Link>
             <button
               onClick={handleLogout}
-              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+              className="text-red-500 hover:underline"
             >
               Logout
             </button>
-          </div>
-        ) : (
-          <div className="space-x-4">
-            <Link
-              to="auth?mode=login"
-              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-            >
-              Login
-            </Link>
-            <Link
-              to="auth?mode=signup"
-              className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-            >
-              Signup
-            </Link>
-          </div>
+          </>
         )}
       </div>
     </nav>
