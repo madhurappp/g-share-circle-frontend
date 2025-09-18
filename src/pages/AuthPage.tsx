@@ -31,7 +31,10 @@ export default function AuthPage() {
 
         if (error) throw error;
         navigate("/", {
-          state: { message: "Signup successful! Please check your email to confirm your account." },
+          state: {
+            message:
+              "Signup successful! Please check your email to confirm your account.",
+          },
         });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -54,7 +57,7 @@ export default function AuthPage() {
       <div className="w-full max-w-md bg-white p-8 rounded shadow">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src="/logo.png" alt="ShareCircle Logo" className="h-16" />
+          <img src="/logo.png" alt="ShareCircle Logo" className="h-20" />
         </div>
 
         <h2 className="text-2xl font-bold text-center mb-6">
@@ -99,7 +102,11 @@ export default function AuthPage() {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
           >
-            {loading ? "Logging In..." : mode === "login" ? "Login" : "Sign Up"}
+            {loading
+              ? "Logging In..."
+              : mode === "login"
+              ? "Login"
+              : "Sign Up"}
           </button>
         </form>
       </div>

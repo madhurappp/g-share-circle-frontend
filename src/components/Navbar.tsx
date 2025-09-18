@@ -30,13 +30,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 shadow">
+    <nav className="flex items-center justify-between p-4 shadow bg-white">
       {/* Logo: Goes to Dashboard if logged in, LandingPage otherwise */}
-      <Link
-        to="/"
-        className="text-xl font-bold text-blue-600"
-      >
-        ShareCircle
+      <Link to={user ? "/dashboard" : "/"} className="flex items-center">
+        <img src="/logo.png" alt="ShareCircle Logo" className="h-10" />
       </Link>
 
       <div className="flex gap-4 items-center">

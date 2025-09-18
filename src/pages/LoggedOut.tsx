@@ -5,10 +5,16 @@ import { Link } from "react-router-dom";
 export default function LoggedOut() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center p-6">
+      {/* Logo */}
+      <div className="mb-6">
+        <img src="/logo.png" alt="ShareCircle Logo" className="h-16" />
+      </div>
+
       <h1 className="text-2xl font-bold mb-4">You’ve been logged out</h1>
       <p className="mb-6 text-gray-600">
         Thanks for visiting ShareCircle. You can log in again or return to the home page.
       </p>
+
       <div className="flex gap-4">
         <Link
           to="/auth"

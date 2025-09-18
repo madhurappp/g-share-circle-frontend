@@ -58,6 +58,9 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col items-center p-4 space-y-4">
+      {/* Logo at top center */}
+      <img src="/logo.png" alt="ShareCircle Logo" className="h-24 mb-4" />
+
       <h1 className="text-2xl font-bold">Search Items Nearby</h1>
 
       {/* Wrap input + button inside a form */}
